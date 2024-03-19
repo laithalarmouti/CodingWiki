@@ -12,6 +12,11 @@ namespace codingWiki_DataAccess.Data
 {
     public class ApplicationDbContext : DbContext
     {
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        {
+
+}
         public DbSet<Book>Books { get; set; }
         public DbSet<Category>Categories { get; set; }
         public DbSet<Author>Authors { get; set; }
@@ -29,10 +34,13 @@ namespace codingWiki_DataAccess.Data
         public DbSet<Fluent_Publisher>Publisher_Fluent { get; set; }
         public DbSet<Fluent_BookAuthorMap>AuthorMaps_Fluent { get; set; }
 
+
+      
+
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlServer("Server=192.168.215.34;Database=Ef_CoreDb;User Id=sa;Password=P@ssw0rd@123;TrustServerCertificate=true;")
-                .LogTo(Console.WriteLine,new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information);
+           // options.UseSqlServer("Server=192.168.215.34;Database=Ef_CoreDb;User Id=sa;Password=P@ssw0rd@123;TrustServerCertificate=true;")
+               // .LogTo(Console.WriteLine,new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
