@@ -1,23 +1,23 @@
 ﻿using codingWiki_DataAccess.Data;
+using codingWiki_Model.Models;
 using codingWiki_Model.ViewModels;
-using CodingWiki_Model.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace CodingWiki_web.Controllers
 {
-    public class BookController : Controller
+    public class BookController(ApplicationDbContext _db) : Controller
     {
-        private readonly ApplicationDbContext _db;
-
-        public BookController(ApplicationDbContext db)
-        {
-            _db = db;
-        }
         public IActionResult Index()
         {
-            List<Book> objList = _db.Books.ToList();
+            List<Book> objList = _db.Books.Include(u => u.Publisher).ToList();
+
+            //foreach(var obj in objList)
+            //{
+            //    //obj.Publisher = _db.Publishers.Find(obj.Publisher_Id);
+            //    _db.Entry(obj).Reference(u=>u.Publisher).Load();
+            //}
             return View(objList);
         }
         public IActionResult Upsert(int? id)
@@ -27,14 +27,14 @@ namespace CodingWiki_web.Controllers
             {
                 Text = i.Name,
                 Value = i.Publisher_Id.ToString()
-            });         
+            });
 
-            if (obj == null || id==0)
+            if (obj == null || id == 0)
             {
                 return View(obj);
             }
-            obj.Book = _db.Books.FirstOrDefault(c=> c.BookID == id);
-            if (obj == null) 
+            obj.Book = _db.Books.FirstOrDefault(c => c.BookID == id);
+            if (obj == null)
             {
                 return NotFound();
             }
@@ -42,79 +42,134 @@ namespace CodingWiki_web.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Upsert(Book obj) 
+        public async Task<IActionResult> Upsert(BookVM obj)
         {
-            if (ModelState.IsValid)
+
+            if (obj.Book.BookID == 0)
             {
-                if(obj.BookID == 0)
-                {
-                    await _db.Books.AddAsync(obj);
-                }
-                else
-                {
-                    _db.Books.Update(obj);
-                }
-                await _db.SaveChangesAsync();
+                await _db.Books.AddAsync(obj.Book);
+            }
+            else
+            {
+                _db.Books.Update(obj.Book);
+            }
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+
+        }
+        public IActionResult Details(int? id)
+        {
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            BookDetail obj = new();
+
+
+
+            obj = _db.BookDetails.Include(u => u.Book).FirstOrDefault(u => u.Book_Id == id);
+            if (obj == null)
+            {
+                return NotFound();
             }
             return View(obj);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Details(BookDetail obj)
+        {
 
-        //public IActionResult Upsert(int? id)
-        //{
-        //    Category obj = new();
-        //    if (id ==null || id==0)
-        //    {
-        //        return View(obj);
-        //    }
-        //    //.....Edit
-        //    obj= _db.Categories.FirstOrDefault(u => u.CategoryID==id);
-        //    if (obj==null) 
-        //    { 
-        //        return NotFound(); 
-        //    }
-        //    return View(obj);
-        //}
+            if (obj.BookDetail_Id == 0)
+            {
+                await _db.BookDetails.AddAsync(obj);
+            }
+            else
+            {
+                _db.BookDetails.Update(obj);
+            }
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Upsert(Category obj)
-        //{
-        //    if (ModelState.IsValid)
-        //    {     //.....Create
-        //        if(obj.CategoryID==0)
-        //        {
-        //            await _db.Categories.AddAsync(obj);
-        //        }//........Update
-        //        else
-        //        {
-        //             _db.Categories.Update(obj);
-        //        }
-        //        await _db.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    return View(obj);
-        //}
+        }
+        public async Task<IActionResult> Delete(int id)
+        {
+            Book obj = new();
 
-        //public async Task<IActionResult> Delete(int id)
-        //{
-        //    Category obj = new();
+            //.....Delete
+            obj = _db.Books.FirstOrDefault(u => u.BookID == id);
+            if (obj == null)
+            {
+                return NotFound();
+            }
 
-        //    //.....Delete
-        //    obj = _db.Categories.FirstOrDefault(u => u.CategoryID == id);
-        //    if (obj == null)
-        //    {
-        //        return NotFound();
-        //    }
+            _db.Books.Remove(obj);
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
 
-        //    _db.Categories.Remove(obj);
-        //    await _db.SaveChangesAsync();
-        //    return RedirectToAction(nameof(Index));
-
-        //}
+        }
+        public IActionResult ManageAuthors(int id)
+        {
 
 
+            BookAuthorVM obj = new()
+            {
+                BookAuthorList = _db.BookAuthorMaps
+                .Where(u => u.Book_Id == id)
+                .Include(u => u.Author)
+                .ToList(),
 
+                BookAuthor = new()
+                {
+                    Book_Id = id
+                },
 
+                Book = _db.Books.FirstOrDefault(u => u.BookID == id)
 
+            };
+            List<int> tempListOfAssignedAuthor = obj.BookAuthorList.Select(u => u.Author_Id).ToList();
+            //NOT IN CLAUSE
+            var tempList = _db.Authors.Where(u => !tempListOfAssignedAuthor.Contains(u.Author_Id)).ToList();
+            obj.AuthorList = tempList.Select(i => new SelectListItem
+            { 
+                Text = i.FullName,
+                Value = i.Author_Id.ToString()
+            });
+            
+            
+            
+            
+            return View(obj); // You need to return a view or some other ActionResult
+        }
+        public async Task<IActionResult> Playground()
+        {
+            IEnumerable<Book> BookList1 = _db.Books;
+            var FilterBook1 = BookList1.Where(b => b.Price > 250).ToList();
+
+            IQueryable<Book> BookList2 = _db.Books;
+            var FilterBook2 = BookList2.Where(b => b.Price > 250).ToList();
+            //var bookTemp = _db.Books.FirstOrDefault();
+            //bookTemp.Price = 100;
+
+            //var bookCollection = _db.Books;
+            //decimal totalPrice = 0;
+
+            //foreach (var book in bookCollection)
+            //{
+            //    totalPrice += book.Price;
+            //}
+
+            //var bookList = _db.Books.ToList();
+            //foreach (var book in bookList)
+            //{
+            //    totalPrice += book.Price;
+            //}
+
+            //var bookCollection2 = _db.Books;
+            //var bookCount1 = bookCollection2.Count();
+
+            //var bookCount2 = _db.Books.Count();
+            return RedirectToAction(nameof(Index));
+
+        }
     }
 }

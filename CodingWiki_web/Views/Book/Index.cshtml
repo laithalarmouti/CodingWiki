@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CodingWiki_Model.Models.Book>
+﻿@model IEnumerable<codingWiki_Model.Models.Book>
 
 <br />
 <br />
@@ -23,11 +23,12 @@
                     <th>
                         Title
                     </th>
-
-                    @*<th>
+                    <th>Price</th>
+                    
+                    <th>
                 Publisher
                 </th>
-                <th>
+               @* <th>
                 Authors
                 </th>*@
                     <th></th>
@@ -38,10 +39,11 @@
                         <td>
                             @item.Title
                         </td>
-                        @*<td>
+                        <td>@item.Price.ToString("c")</td>
+                        <td>
                 @item.Publisher.Name
                 </td>
-                <td>
+                @*<td>
                 @{
                 var authors = "";
                 }

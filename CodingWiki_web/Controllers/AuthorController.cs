@@ -1,7 +1,6 @@
 ﻿using codingWiki_DataAccess.Data;
-using CodingWiki_Model.Models;
+using codingWiki_Model.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CodingWiki_web.Controllers
 {
@@ -20,7 +19,7 @@ namespace CodingWiki_web.Controllers
         }
 
         public IActionResult Upsert(int? id)
-        {   
+        {
             Author obj = new();
             if (id == null || id == 0)
             {
@@ -69,7 +68,7 @@ namespace CodingWiki_web.Controllers
             _db.Authors.Remove(obj);
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-            
+
 
         }
 

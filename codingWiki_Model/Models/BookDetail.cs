@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CodingWiki_Model.Models
+namespace codingWiki_Model.Models
 {
     public class BookDetail
     {

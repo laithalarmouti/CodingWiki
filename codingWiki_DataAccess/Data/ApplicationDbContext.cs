@@ -1,4 +1,5 @@
 ﻿using codingWiki_DataAccess.FluentConfig;
+using codingWiki_Model.Models;
 using CodingWiki_Model.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -29,10 +30,9 @@ namespace codingWiki_DataAccess.Data
 
         public DbSet<Fluent_Publisher> Publisher_Fluent { get; set; }
         public DbSet<Fluent_BookAuthorMap> AuthorMaps_Fluent { get; set; }
+        public DbSet<BookAuthorMap> BookAuthorMaps { get; set; }
 
-
-       
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {

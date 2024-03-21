@@ -1,7 +1,6 @@
 ﻿using codingWiki_DataAccess.Data;
-using CodingWiki_Model.Models;
+using codingWiki_Model.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CodingWiki_web.Controllers
 {
@@ -22,15 +21,15 @@ namespace CodingWiki_web.Controllers
         public IActionResult Upsert(int? id)
         {
             Category obj = new();
-            if (id ==null || id==0)
+            if (id == null || id == 0)
             {
                 return View(obj);
             }
             //.....Edit
-            obj= _db.Categories.FirstOrDefault(u => u.CategoryID==id);
-            if (obj==null) 
-            { 
-                return NotFound(); 
+            obj = _db.Categories.FirstOrDefault(u => u.CategoryID == id);
+            if (obj == null)
+            {
+                return NotFound();
             }
             return View(obj);
         }
@@ -41,13 +40,13 @@ namespace CodingWiki_web.Controllers
         {
             if (ModelState.IsValid)
             {     //.....Create
-                if(obj.CategoryID==0)
+                if (obj.CategoryID == 0)
                 {
                     await _db.Categories.AddAsync(obj);
                 }//........Update
                 else
                 {
-                     _db.Categories.Update(obj);
+                    _db.Categories.Update(obj);
                 }
                 await _db.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -58,7 +57,7 @@ namespace CodingWiki_web.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             Category obj = new();
-            
+
             //.....Delete
             obj = _db.Categories.FirstOrDefault(u => u.CategoryID == id);
             if (obj == null)
@@ -72,18 +71,18 @@ namespace CodingWiki_web.Controllers
 
         }
 
-        
-        public  IActionResult CreateMultiple2()
+
+        public IActionResult CreateMultiple2()
         {
             List<Category> categories = new();
-            for (int i = 1; i<=2; i++) 
+            for (int i = 1; i <= 2; i++)
             {
                 categories.Add(new Category { CategoryName = Guid.NewGuid().ToString() });
-                
+
             }
             _db.AddRange(categories);
             _db.SaveChanges();
-            return RedirectToAction(nameof(Index)); 
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult CreateMultiple5()
@@ -92,7 +91,7 @@ namespace CodingWiki_web.Controllers
             for (int i = 1; i <= 5; i++)
             {
                 categories.Add(new Category { CategoryName = Guid.NewGuid().ToString() });
-               
+
             }
             _db.AddRange(categories);
             _db.SaveChanges();
@@ -101,7 +100,7 @@ namespace CodingWiki_web.Controllers
 
         public IActionResult RemoveMultiple2()
         {
-            List<Category> categories = _db.Categories.OrderByDescending(c => c.CategoryID).Take(2).ToList();         
+            List<Category> categories = _db.Categories.OrderByDescending(c => c.CategoryID).Take(2).ToList();
             _db.RemoveRange(categories);
             _db.SaveChanges();
             return RedirectToAction(nameof(Index));

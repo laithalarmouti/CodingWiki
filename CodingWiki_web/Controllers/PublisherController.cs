@@ -1,7 +1,6 @@
 ﻿using codingWiki_DataAccess.Data;
-using CodingWiki_Model.Models;
+using codingWiki_Model.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CodingWiki_web.Controllers
 {
@@ -72,8 +71,8 @@ namespace CodingWiki_web.Controllers
             return RedirectToAction(nameof(Index));
 
         }
-     
-      
+
+
 
     }
 }

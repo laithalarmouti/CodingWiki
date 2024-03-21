@@ -1,4 +1,4 @@
-namespace CodingWiki_Model.Models
+namespace codingWiki_Model.Models
 {
     public class ErrorViewModel
     {
